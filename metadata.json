@@ -1,0 +1,6 @@
+{
+  "name": "Clearance Copilot",
+  "description": "Evidence-backed screenplay clearance and E&O risk radar powered by Google Cloud Agent Platform, Gemini 3.8 Flash, and live Parallel Search.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
