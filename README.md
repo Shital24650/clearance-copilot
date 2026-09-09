@@ -111,7 +111,7 @@ Clearance Analyst Agent
       │
       │ evidence + screenplay claim
       ▼
-Gemini 3.8 Flash
+Gemini
       │
       │ comparative reasoning
       ▼
@@ -197,7 +197,7 @@ Clearance Copilot intentionally separates reasoning/orchestration from external 
 
 **Parallel Search** — The external evidence layer. It is called independently through its official SDK and retrieves live public-web evidence at runtime. It is not represented as a static knowledge base and it is not treated as the reasoning engine.
 
-**Gemini** — Performs the evidence-grounded comparative reasoning required to determine how the screenplay assertion relates to the retrieved evidence. Runs on **Gemini 3.8 Flash** by default, with automatic fallback to **Gemini 3.1 Flash Lite** if the primary model hits a quota limit.
+**Gemini** — Performs the evidence-grounded comparative reasoning required to determine how the screenplay assertion relates to the retrieved evidence. Configurable via `GEMINI_MODEL`; the live deployment currently runs on **Gemini 3.1 Flash Lite**, with the code also supporting Gemini 3.8 Flash as the primary model and automatic fallback between the two on quota limits.
 
 **Human Review** — The final clearance decision remains with qualified production and legal professionals.
 
@@ -248,7 +248,7 @@ The resulting audit trail connects the screenplay assertion to the actual eviden
 |---|---|
 | Agent / Orchestration | Google Cloud Agent Platform |
 | Agent SDK | `@google-cloud/agentplatform` |
-| Reasoning | Gemini 3.8 Flash via `@google/genai`, with automatic fallback to Gemini 3.1 Flash Lite on quota limits |
+| Reasoning | Gemini via `@google/genai` — configurable model (live deployment: Gemini 3.1 Flash Lite), with automatic fallback support between Gemini 3.8 Flash and Gemini 3.1 Flash Lite on quota limits |
 | Evidence Retrieval | Parallel Search via `parallel-web` |
 | Backend | Express + TypeScript |
 | Frontend | React 19 + Vite + Tailwind CSS |
@@ -329,7 +329,7 @@ Configure the required environment variables in `.env`:
 |---|---|
 | `GEMINI_API_KEY` | Google Gemini access |
 | `PARALLEL_API_KEY` | Parallel Search access |
-| `GEMINI_MODEL` | Gemini model identifier (defaults to `gemini-3.8-flash`; auto-falls back to `gemini-3.1-flash-lite` on quota errors) |
+| `GEMINI_MODEL` | Gemini model identifier. Live deployment currently runs `gemini-3.1-flash-lite`; also supports `gemini-3.8-flash` as primary with automatic fallback on quota errors |
 | `APP_URL` | Application URL |
 
 Google Cloud environment variables can be configured when using the corresponding Google Cloud runtime.
