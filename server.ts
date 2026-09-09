@@ -1,5 +1,6 @@
 import express, { Request, Response } from "express";
 import path from "path";
+import fs from "fs";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import {
@@ -13,6 +14,14 @@ import { getAgentPlatformMetadata } from "./src/server/agent/google-agent-platfo
 import { ExtractedClaim } from "./src/types/clearance";
 
 dotenv.config();
+
+const appFilename =
+  typeof (globalThis as any).__filename === "string"
+    ? (globalThis as any).__filename
+    : typeof process?.argv?.[1] === "string"
+    ? process.argv[1]
+    : "";
+const appDirname = path.dirname(appFilename || process.cwd());
 
 const PORT = 3000;
 const app = express();
@@ -214,17 +223,32 @@ app.post("/api/analyze", async (req: Request, res: Response) => {
 // -------------------------------------------------------------
 
 async function startServer() {
-  if (process.env.NODE_ENV !== "production") {
+  // Resolve pre-built static distribution directory
+  const cwdDist = path.join(process.cwd(), "dist");
+  const dirnameDist = appDirname;
+  const distPath = fs.existsSync(path.join(cwdDist, "index.html"))
+    ? cwdDist
+    : fs.existsSync(path.join(dirnameDist, "index.html"))
+    ? dirnameDist
+    : null;
+
+  // Running as bundled production server or with NODE_ENV=production or when dist assets exist
+  const isProduction =
+    process.env.NODE_ENV === "production" ||
+    appFilename.endsWith("server.cjs") ||
+    (appDirname.endsWith("dist") && !!distPath);
+
+  if (!isProduction) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
+    const resolvedDist = distPath || cwdDist;
+    app.use(express.static(resolvedDist));
     app.get("*", (_req: Request, res: Response) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      res.sendFile(path.join(resolvedDist, "index.html"));
     });
   }
 
